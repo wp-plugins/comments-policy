@@ -25,7 +25,7 @@ This WordPress plugin allows you to manage and display a comments policy on your
 = How to use this plugin? =
 1. Go to <b>Comments Policy</b> menu under <b>Comments</b> menu in your admin panel.
 2. Create your own custom comments policy based on the default list
-3. You can choose to display your policy automatically or manually insert the code <b><?php comments_policy(); ?>;</b> inside your theme.
+3. You can choose to display your policy automatically or manually insert the code <b>&lt;?php comments_policy(); ?&gt;;</b> inside your theme.
 4. You can customize the appearance of the comments policy by modify the CSS in the Custom CSS.
 
 = For more information log on to = 
