@@ -3,8 +3,8 @@ Contributors: Gobala Krishnan
 Donate link: http://www.profitplugs.com/donate/
 Tags: comments, comment, admin, policy
 Requires at least: 2.7
-Tested up to: 2.8.2
-Stable tag: 1.0
+Tested up to: 2.8.3
+Stable tag: 1.1
 
 Help your readers to self-moderate their comments by displaying a clear comments policy.
 
@@ -25,7 +25,7 @@ This WordPress plugin allows you to manage and display a comments policy on your
 = How to use this plugin? =
 1. Go to <b>Comments Policy</b> menu under <b>Comments</b> menu in your admin panel.
 2. Create your own custom comments policy based on the default list
-3. You can choose to display your policy automatically or manually insert the code <b>&lt;?php comments_policy(); ?&gt;;</b> inside your theme.
+3. You can choose to display your policy automatically or manually insert the code <b><?php comments_policy(); ?>;</b> inside your theme.
 4. You can customize the appearance of the comments policy by modify the CSS in the Custom CSS.
 
 = For more information log on to = 
@@ -38,3 +38,8 @@ This WordPress plugin allows you to manage and display a comments policy on your
 2. Flexible policy. Can drag n drop and rename.
 3. Import/Export policy.
 4. Comments Policy in action.
+
+== Changelog ==
+
+= 1.1 =
+* Code compatible with PHP 4.x

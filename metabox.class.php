@@ -13,16 +13,16 @@ if (!function_exists ('add_action')) {
 
 //class that reperesent the complete plugin
 class metabox {
-    public $page_name;
-    public $title;
-    public $pagehook;
-    public $info_title  = 'Theme Info';
-    public $info_type   = 'Theme';//or Plugin
+    var $page_name;
+    var $title;
+    var $pagehook;
+    var $info_title  = 'Theme Info';
+    var $info_type   = 'Theme';//or Plugin
 
-    public $info_data_title;
-    public $info_data_version;
-    public $info_data_author;
-    public $info_data_description;
+    var $info_data_title;
+    var $info_data_version;
+    var $info_data_author;
+    var $info_data_description;
 
 	//constructor of class, PHP4 compatible construction for backward compatibility
 	function metabox($page_name) {
