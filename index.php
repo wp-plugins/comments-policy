@@ -9,7 +9,33 @@ Version: 1.0
 
 */
 if (!class_exists('metabox')){
-include('metabox.class.php');
+    include('metabox.class.php');
+}
+
+//for php version < 5.2.1
+if ( !function_exists('sys_get_temp_dir') )
+{
+    function sys_get_temp_dir()
+    {
+        if ( !empty($_ENV['TMP']) ){
+            return realpath( $_ENV['TMP'] );
+        }else if ( !empty($_ENV['TMPDIR']) ){
+            return realpath( $_ENV['TMPDIR'] );
+        }else if ( !empty($_ENV['TEMP']) ){
+            return realpath( $_ENV['TEMP'] );
+        }else{
+            // Try to use system's temporary directory
+            // as random name shouldn't exist
+            $temp_file = tempnam( md5(uniqid(rand(), TRUE)), '' );
+            if ( $temp_file ){
+                $temp_dir = realpath( dirname($temp_file) );
+                unlink( $temp_file );
+                return $temp_dir;
+            }else{
+                return FALSE;
+            }
+        }
+    }
 }
 
 class comments_policy extends metabox{
@@ -50,12 +76,15 @@ class comments_policy extends metabox{
         }
         $policy_data = get_option($this->page_name);
        
-        add_meta_box($this->page_name . '_info', $this->info_title , array(&$this, 'metaboxInfo'), $this->pagehook, 'side', 'core');
-
-        add_meta_box($this->page_name . '_1', 'Your Comments Policy', array(&$this, 'comment_policy'), $this->pagehook, 'normal', 'core');
-		add_meta_box($this->page_name . '_2', 'Custom CSS', array(&$this, 'custom_css'), $this->pagehook, 'normal', 'core');
-        add_meta_box($this->page_name . '_3', 'How to Use This Plugin', array(&$this, 'how_to'), $this->pagehook, 'normal', 'core');
-        add_meta_box($this->page_name . '_4', 'Import & Export Policy', array(&$this, 'import_export'), $this->pagehook, 'side', 'core');
+        if (function_exists('json_encode')){
+           // add_meta_box($this->page_name . '_info', $this->info_title , array(&$this, 'metaboxInfo'), $this->pagehook, 'side', 'core');
+            add_meta_box($this->page_name . '_1', 'Your Comments Policy', array(&$this, 'comment_policy'), $this->pagehook, 'normal', 'core');
+            add_meta_box($this->page_name . '_2', 'Custom CSS', array(&$this, 'custom_css'), $this->pagehook, 'normal', 'core');
+            add_meta_box($this->page_name . '_3', 'How to Use This Plugin', array(&$this, 'how_to'), $this->pagehook, 'normal', 'core');
+            add_meta_box($this->page_name . '_4', 'Import & Export Policy', array(&$this, 'import_export'), $this->pagehook, 'side', 'core');
+        }else{
+            add_meta_box($this->page_name . '_5', 'Alert message' , array(&$this, 'alert_msg'), $this->pagehook, 'normal', 'core');
+        }
     }
     function on_save_changes_hook(){
         global $msg;
@@ -82,17 +111,17 @@ class comments_policy extends metabox{
                 }
             }           
             update_option($this->page_name,$policy_data);  
-            $msg = 'Data updated';
+            $msg = 'Your data was updated';
         }
 
         if (isset($_POST[$this->page_name.'_reset'])){
             $this->default_data();
             update_option($this->page_name,$policy_data);
-            $msg = 'Data reseted';
+            $msg = 'Your data was reseted';
         }
     }
     
-    function metaboxInfo(){
+    function metaboxInfo(){        
     ?>
         <table width="100%" border="0" cellspacing="4">
             <tr>
@@ -112,9 +141,10 @@ class comments_policy extends metabox{
                 <td valign="top">: <?php echo $this->info_data_description; ?></td>
             </tr>
         </table>
-        <input type="submit" value="Save Setting" class="button-primary" name="<?php echo $this->page_name;?>_submit" /><input type="submit" value="Reset Setting" class="button-primary" name="<?php echo $this->page_name;?>_reset" />
-
+    <?php if (function_exists('json_encode')){ ?>
+        <input type="submit" value="Save Setting" class="button-primary" name="<?php echo $this->page_name;?>_submit" /><input type="submit" value="Reset Setting" class="button-primary" name="<?php echo $this->page_name;?>_reset" onclick="return reset_confirmation()" />
     <?php
+        }
     }
 
 //callback & function ----------------------------------------------------------
@@ -237,6 +267,14 @@ class comments_policy extends metabox{
     _e('<script type=\'text/javascript\' src=\'' . $plugin_location . 'ajaxupload.3.5.js\'></script>');
     _e('<script type="text/javascript">
         //<![CDATA[
+        function reset_confirmation(){
+            var confirm_answer = confirm("Do you really want to reset your Comments Policy into default value?.It will remove all your previous setting");
+            if (confirm_answer== true){
+                return true;
+            }else{
+                return false;
+            }
+        }
         jQuery(document).ready(function() {
             function update_order(){
                 var order = jQuery("#sortable-list").sortable("serialize");
@@ -417,7 +455,7 @@ class comments_policy extends metabox{
                 $fh             = fopen($uploadfile, 'r');
                 $Data           = fread($fh, filesize($uploadfile));
                 $policy_data    = json_decode($Data,true);
-                if ( array_key_exists('policy-enable',$policy_data )){
+                if ( array_key_exists('policy-enable',(array)$policy_data )){
                     update_option('comments_policy_plugin',$policy_data) ;
                     echo "Comment Policy successful imported";
                 }else{
@@ -603,6 +641,10 @@ class comments_policy extends metabox{
         </table>');
 	}
 
+    function alert_msg(){
+        _e('Sorry, this plugin require at lease PHP 5.2.0 and higher, or PECL json 1.2.0 and higher<br/><br/>You are currently using  PHP ' .phpversion() );
+    }
+
 }
 
 $comments_policy = new comments_policy();
@@ -614,6 +656,7 @@ function comments_policy() {
 }
 
 $policy_data = get_option($comments_policy->page_name);
+//var_dump($policy_data);
 if ( $policy_data['policy-display-position']=='fix' ){
     add_action('comment_form','display_policy');
 }else{
