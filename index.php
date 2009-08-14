@@ -45,7 +45,7 @@ class comments_policy extends metabox{
         $this->info_title = 'Plugin Info';
         $this->info_type = 'Plugin';
         $this->info_data_title = 'Comments Policy';
-        $this->info_data_version= '1.0';
+        $this->info_data_version= '1.1';
         $this->info_data_author= '<a href="http://www.profitplugs.com/" target="_blank">Gobala Krishnan</a>';
         $this->info_data_description= 'Allow readers to self-moderate their comments based on your policy.';
         //---        
