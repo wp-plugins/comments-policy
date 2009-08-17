@@ -75,16 +75,13 @@ class comments_policy extends metabox{
             update_option($this->page_name,$policy_data);
         }
         $policy_data = get_option($this->page_name);
-       
-        if (function_exists('json_encode')){
-           // add_meta_box($this->page_name . '_info', $this->info_title , array(&$this, 'metaboxInfo'), $this->pagehook, 'side', 'core');
-            add_meta_box($this->page_name . '_1', 'Your Comments Policy', array(&$this, 'comment_policy'), $this->pagehook, 'normal', 'core');
-            add_meta_box($this->page_name . '_2', 'Custom CSS', array(&$this, 'custom_css'), $this->pagehook, 'normal', 'core');
-            add_meta_box($this->page_name . '_3', 'How to Use This Plugin', array(&$this, 'how_to'), $this->pagehook, 'normal', 'core');
-            add_meta_box($this->page_name . '_4', 'Import & Export Policy', array(&$this, 'import_export'), $this->pagehook, 'side', 'core');
-        }else{
-            add_meta_box($this->page_name . '_5', 'Alert message' , array(&$this, 'alert_msg'), $this->pagehook, 'normal', 'core');
-        }
+               
+        add_meta_box($this->page_name . '_info', $this->info_title , array(&$this, 'metaboxInfo'), $this->pagehook, 'side', 'core');
+        add_meta_box($this->page_name . '_1', 'Your Comments Policy', array(&$this, 'comment_policy'), $this->pagehook, 'normal', 'core');
+        add_meta_box($this->page_name . '_2', 'Custom CSS', array(&$this, 'custom_css'), $this->pagehook, 'normal', 'core');
+        add_meta_box($this->page_name . '_3', 'How to Use This Plugin', array(&$this, 'how_to'), $this->pagehook, 'normal', 'core');
+        add_meta_box($this->page_name . '_4', 'Import & Export Policy', array(&$this, 'import_export'), $this->pagehook, 'side', 'core');
+        
     }
     function on_save_changes_hook(){
         global $msg;
@@ -140,11 +137,9 @@ class comments_policy extends metabox{
                 <td valign="top">Description</td>
                 <td valign="top">: <?php echo $this->info_data_description; ?></td>
             </tr>
-        </table>
-    <?php if (function_exists('json_encode')){ ?>
+        </table> 
         <input type="submit" value="Save Setting" class="button-primary" name="<?php echo $this->page_name;?>_submit" /><input type="submit" value="Reset Setting" class="button-primary" name="<?php echo $this->page_name;?>_reset" onclick="return reset_confirmation()" />
-    <?php
-        }
+    <?php        
     }
 
 //callback & function ----------------------------------------------------------
@@ -263,10 +258,63 @@ class comments_policy extends metabox{
     }
     function add_javascript(){
         $plugin_location = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
-        $tempdir = sys_get_temp_dir();
-    _e('<script type=\'text/javascript\' src=\'' . $plugin_location . 'ajaxupload.3.5.js\'></script>');
+        if (function_exists('json_encode')){
+        _e('<script type=\'text/javascript\' src=\'' . $plugin_location . 'ajaxupload.3.5.js\'></script>');
+        _e('<script type="text/javascript">
+            /* <![CDATA[ */
+            jQuery(document).ready(function() {
+                jQuery("#btnExport").click(function(){
+                    jQuery.ajax({
+                        url:\'admin-ajax.php?action=export_policy\',
+                        type: \'post\',
+                        dataType:\'html\',
+                        success:function(html){
+                            jQuery("#exportData").val(html);
+                            jQuery("#exportSubmit").submit();
+                        }
+                    });
+                });
+                var button = jQuery(\'#btnImport\'), interval;
+                new AjaxUpload(button,{
+                    action: \'admin-ajax.php?action=import_policy\',
+                    name: \'myfile\',
+                    onSubmit : function(file, ext){
+                        // change button text, when user selects file
+                        button.text(\'Uploading\');
+
+                        // If you want to allow uploading only 1 file at time,
+                        // you can disable upload button
+                        this.disable();
+
+                        // Uploding -> Uploading. -> Uploading...
+                        interval = window.setInterval(function(){
+                            var text = button.text();
+                            if (text.length < 13){
+                                button.text(text + \'.\');
+                            } else {
+                                button.text(\'Uploading\');
+                            }
+                        }, 200);
+                    },
+                    onComplete: function(file, response){
+                        button.text(\'Import policy\');
+                        window.clearInterval(interval);
+                        // enable upload button
+                        this.enable();
+                        if ("Comment Policy successful imported"==response){
+                            alert(response + ". This page will be reload after you close this message");
+                            window.location.reload();
+                        }else{
+                            alert(response);
+                        }
+                    }
+                });
+            });
+            /* ]]> */
+            </script>');
+        }
     _e('<script type="text/javascript">
-        //<![CDATA[
+        /* <![CDATA[ */
         function reset_confirmation(){
             var confirm_answer = confirm("Do you really want to reset your Comments Policy into default value?.It will remove all your previous setting");
             if (confirm_answer== true){
@@ -318,54 +366,9 @@ class comments_policy extends metabox{
                     alert("No data to add");
                 }
             });
-            jQuery("#btnExport").click(function(){
-                jQuery.ajax({
-                    url:\'admin-ajax.php?action=export_policy\',
-                    type: \'post\',
-                    dataType:\'html\',
-                    success:function(html){
-                        jQuery("#exportData").val(html);
-                        jQuery("#exportSubmit").submit();                       
-                    }
-                });
-            });
-            var button = jQuery(\'#btnImport\'), interval;
-            new AjaxUpload(button,{               
-                action: \'admin-ajax.php?action=import_policy\',
-                name: \'myfile\',
-                onSubmit : function(file, ext){
-                    // change button text, when user selects file
-                    button.text(\'Uploading\');
-
-                    // If you want to allow uploading only 1 file at time,
-                    // you can disable upload button
-                    this.disable();
-
-                    // Uploding -> Uploading. -> Uploading...
-                    interval = window.setInterval(function(){
-                        var text = button.text();
-                        if (text.length < 13){
-                            button.text(text + \'.\');
-                        } else {
-                            button.text(\'Uploading\');
-                        }
-                    }, 200);
-                },
-                onComplete: function(file, response){
-                    button.text(\'Import policy\');
-                    window.clearInterval(interval);
-                    // enable upload button
-                    this.enable();                    
-                    if ("Comment Policy successful imported"==response){
-                        alert(response + ". This page will be reload after you close this message");
-                        window.location.reload();
-                    }else{
-                        alert(response);
-                    }                
-                }
-            });
+            
         });
-        //]]>
+        /* ]]> */
         </script>');
 
     }
@@ -574,27 +577,32 @@ class comments_policy extends metabox{
 	}
 
     function import_export(){
-    _e('<table width="100%" border="0" cellspacing="4">
-        <tr>
-            <td valign="top" >
-            Import your comment policy file.
-            </td>
-        <tr>            
-            <td valign="top" >            
-           <div id="btnImport" class="button rbutton" style="width:100px;">Import policy</div>
-            <hr/>
-            </td>
-        </tr>
-        <tr>
-            <td valign="top" >
-            You can export your current comment policy and save into your hard disk.
-            </td>
-        </tr>
-        <tr>
-            <td valign="top" ><input type="submit" class="button rbutton" id="btnExport" onclick="return false;" value="Export Existing Policy" />
-            </td>
-        </tr>
-        </table>');
+        if (function_exists('json_encode')){
+        _e('<table width="100%" border="0" cellspacing="4">
+            <tr>
+                <td valign="top" >
+                Import your comment policy file.
+                </td>
+            <tr>
+                <td valign="top" >
+               <div id="btnImport" class="button rbutton" style="width:100px;">Import policy</div>
+                <hr/>
+                </td>
+            </tr>
+            <tr>
+                <td valign="top" >
+                You can export your current comment policy and save into your hard disk.
+                </td>
+            </tr>
+            <tr>
+                <td valign="top" ><input type="submit" class="button rbutton" id="btnExport" onclick="return false;" value="Export Existing Policy" />
+                </td>
+            </tr>
+            </table>');
+        }else{
+            _e('Sorry, this function require at lease PHP 5.2.0 and higher, or PECL json 1.2.0 and higher<br/><br/>You are currently using  PHP ' .phpversion() );
+        }
+
     }
    
 	function custom_css() {
@@ -639,11 +647,7 @@ class comments_policy extends metabox{
             </td>
         </tr>
         </table>');
-	}
-
-    function alert_msg(){
-        _e('Sorry, this plugin require at lease PHP 5.2.0 and higher, or PECL json 1.2.0 and higher<br/><br/>You are currently using  PHP ' .phpversion() );
-    }
+	}  
 
 }
 
