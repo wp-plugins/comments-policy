@@ -5,7 +5,7 @@ Plugin URI: http://www.profitplugs.com/
 Description: Help your readers to self-moderate their comments by displaying a clear Comments Policy.
 Author: Gobala Krishnan
 Author URI: http://www.profitplugs.com/
-Version: 1.1.0
+Version: 1.1
 
 */
 if (!class_exists('metabox')){
