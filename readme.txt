@@ -3,8 +3,8 @@ Contributors: Gobala Krishnan
 Donate link: http://www.profitplugs.com/donate/
 Tags: comments, comment, admin, policy
 Requires at least: 2.7
-Tested up to: 2.8.4
-Stable tag: 1.1
+Tested up to: 2.9
+Stable tag: 1.2
 
 Help your readers to self-moderate their comments by displaying a clear comments policy.
 
@@ -40,4 +40,5 @@ This WordPress plugin allows you to manage and display a comments policy on your
 4. Comments Policy in action.
 
 == Changelog ==
+1.2 compatible with wordpress version 2.9
 1.1 compatible with wordpress version 2.8.4
