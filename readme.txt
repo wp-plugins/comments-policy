@@ -40,5 +40,8 @@ This WordPress plugin allows you to manage and display a comments policy on your
 4. Comments Policy in action.
 
 == Changelog ==
-1.2 compatible with wordpress version 2.9
-1.1 compatible with wordpress version 2.8.4
+= 1.2 =
+* compatible with wordpress version 2.9
+
+= 1.1 =
+* compatible with wordpress version 2.8.4
